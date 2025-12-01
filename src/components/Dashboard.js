@@ -51,6 +51,13 @@ const Dashboard = () => {
     setShowPassword(false);
   };
 
+  const handleBack = () => {
+    setShowCreateUserForm(false);
+    setSelectedUser(null);
+    setIsEditing(false);
+    resetForm();
+  };
+
   const handleCreateUser = (e) => {
     e.preventDefault();
     const newUser = {
@@ -183,8 +190,8 @@ const Dashboard = () => {
             <h2 className="text-2xl font-bold text-gray-800">
               {selectedUser
                 ? isEditing
-                  ? 'Modifier l\'utilisateur'
-                  : `Détails de l\'utilisateur : ${selectedUser.name}`
+                  ? "Modifier l'utilisateur"
+                  : `Détails de l'utilisateur : ${selectedUser.name}`
                 : showCreateUserForm
                 ? 'Créer un utilisateur'
                 : activeTab}
@@ -195,6 +202,14 @@ const Dashboard = () => {
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
               >
                 Créer
+              </button>
+            )}
+            {(showCreateUserForm || selectedUser) && (
+              <button
+                onClick={handleBack}
+                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors"
+              >
+                Retour
               </button>
             )}
           </div>
