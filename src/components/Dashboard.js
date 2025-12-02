@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate(); 
   const [currentUser, setCurrentUser] = useState({
     id: 1,
     name: 'Jean Dupont',
@@ -172,14 +174,17 @@ const Dashboard = () => {
         </nav>
 
         <div className="p-4 border-t border-gray-700">
-          <button className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-center transition-colors">
+          <button
+            onClick={() => navigate('/authentification')}
+            className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-center transition-colors"
+          >
             Déconnexion
           </button>
         </div>
       </div>
-
+      
       <div className="flex-1 overflow-auto">
-        <div className="p-8">
+        <div className="p-8">         
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
               {selectedUser
@@ -283,38 +288,38 @@ const Dashboard = () => {
                     </select>
                   </div>
                   <div className="flex items-center justify-between">
-                     <div>
-                        {selectedUser && (
-                            <button
-                                type="button"
-                                onClick={handleDeleteUser}
-                                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
-                            >
-                                Supprimer
-                            </button>
-                        )}
-                     </div>
-                    <div className="flex space-x-4">
-                        {selectedUser && isEditing && (
-                            <button
-                                type="button"
-                                onClick={cancelEdit}
-                                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
-                            >
-                                Annuler
-                            </button>
-                        )}
+                    <div>
+                      {selectedUser && (
                         <button
-                          type={selectedUser && !isEditing ? "button" : "submit"}
-                          onClick={selectedUser && !isEditing ? (e) => { e.preventDefault(); setIsEditing(true); } : undefined}
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
+                          type="button"
+                          onClick={handleDeleteUser}
+                          className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
                         >
-                          {selectedUser
-                            ? isEditing
-                              ? 'Enregistrer'
-                              : 'Modifier'
-                            : 'Créer'}
+                          Supprimer
                         </button>
+                      )}
+                    </div>
+                    <div className="flex space-x-4">
+                      {selectedUser && isEditing && (
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
+                        >
+                          Annuler
+                        </button>
+                      )}
+                      <button
+                        type={selectedUser && !isEditing ? "button" : "submit"}
+                        onClick={selectedUser && !isEditing ? (e) => { e.preventDefault(); setIsEditing(true); } : undefined}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
+                      >
+                        {selectedUser
+                          ? isEditing
+                            ? 'Enregistrer'
+                            : 'Modifier'
+                          : 'Créer'}
+                      </button>
                     </div>
                   </div>
                 </form>
@@ -335,16 +340,16 @@ const Dashboard = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {userList.map((user) => (
                       <tr 
-                        key={user.id} 
-                        className="hover:bg-gray-50 cursor-pointer" 
+                        key={user.id}
+                        className="hover:bg-gray-50 cursor-pointer"
                         onClick={() => openEditForm(user)}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${ 
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             user.role === 'Administrateur' ? 'bg-purple-100 text-purple-800' :
                             user.role === 'Technicien' ? 'bg-green-100 text-green-800' :
                             'bg-gray-100 text-gray-800'
-                          }`}> 
+                          }`}>
                             {user.role}
                           </span>
                         </td>
@@ -357,11 +362,11 @@ const Dashboard = () => {
                 </table>
               </div>
             )
-          ) : activeTab === 'Utilisateurs' ? (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                  <strong className="font-bold">Accès Refusé!</strong>
-                  <span className="block sm:inline"> Vous n\'avez pas les droits nécessaires pour voir cette page.</span>
-              </div>
+          ) : activeTab === 'Utilisateurs' ? (            
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">Accès Refusé!</strong>
+              <span className="block sm:inline"> Vous n\'avez pas les droits nécessaires pour voir cette page.</span>
+            </div>
           ) : (
             <div className="bg-white rounded-lg shadow p-6">
               <p className="text-gray-500">Contenu des interventions à venir...</p>
