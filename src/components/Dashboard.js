@@ -20,10 +20,11 @@ const Dashboard = () => {
     { id: 3, name: 'Pierre Durand', role: 'Gestionnaire', email: 'pierre.durand@example.com', password: 'password123' },
     { id: 4, name: 'Sophie Lefebvre', role: 'Technicien', email: 'sophie.lefebvre@example.com', password: 'password123' },
     { id: 5, name: 'Lucas Moreau', role: 'Gestionnaire', email: 'lucas.moreau@example.com', password: 'password123' },
+    { id: 6, name: 'Youpi', role: 'Technicien', email: 'technicien@example.com', password: 'password123' },
   ];
 
   const initialIntervention = [
-    { id: 101, status: "En cours", date: "2025-12-05", titre: "dodo", description: "il faut se reposer.", technicienId: 2, technicienName: "Marie Martin" },
+    { id: 101, status: "En cours", date: "2025-12-05", titre: "dodo", description: "il faut se reposer.", technicienId: 2, technicienName: "Marie Martin", commentaire: "c'est un joli commentaire", photo: "photo.img", adresse:"190 rue des bouquets" },
     { id: 102, status: "À faire", date: "2025-12-10", titre: "repos", description: "il faut dormir", technicienId: 4, technicienName: "Sophie Lefebvre" },
     { id: 103, status: "Terminé", date: "2025-11-28", titre: "rompich", description: "allez, hein", technicienId: null, technicienName: "Non assigné" },
 ];
