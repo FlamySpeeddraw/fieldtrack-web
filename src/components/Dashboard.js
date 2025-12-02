@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import InterventionsManager from './interventions/interventionsManager';
 
 const Dashboard = () => {
   const [currentUser, setCurrentUser] = useState({
     id: 1,
     name: 'Jean Dupont',
-    role: 'Administrateur' // Change this to 'Technicien' or 'Gestionnaire' to test permission
+    role: 'Administrateur' 
   });
 
   const [activeTab, setActiveTab] = useState(currentUser.role === 'Administrateur' ? 'Utilisateurs' : 'Interventions');
@@ -21,7 +22,14 @@ const Dashboard = () => {
     { id: 5, name: 'Lucas Moreau', role: 'Gestionnaire', email: 'lucas.moreau@example.com', password: 'password123' },
   ];
 
+  const initialIntervention = [
+    { id: 101, status: "En cours", date: "2025-12-05", titre: "dodo", description: "il faut se reposer.", technicienId: 2, technicienName: "Marie Martin" },
+    { id: 102, status: "À faire", date: "2025-12-10", titre: "repos", description: "il faut dormir", technicienId: 4, technicienName: "Sophie Lefebvre" },
+    { id: 103, status: "Terminé", date: "2025-11-28", titre: "rompich", description: "allez, hein", technicienId: null, technicienName: "Non assigné" },
+];
+
   const [userList, setUserList] = useState(initialUsers);
+  const [interventionList, setInterventionList] = useState(initialIntervention); 
 
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -119,11 +127,9 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
       <div className="w-64 bg-gray-800 text-white flex flex-col">
         <div className="p-4 border-b border-gray-700">
           <h1 className="text-2xl font-bold">FieldTrack</h1>
-          {/* Debugging Tool to switch roles */}
           <div className="mt-2 text-xs">
              <label className="block text-gray-400 mb-1">Role actuel (Demo):</label>
              <select 
@@ -180,33 +186,35 @@ const Dashboard = () => {
 
       <div className="flex-1 overflow-auto">
         <div className="p-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
-              {selectedUser
-                ? isEditing
-                  ? "Modifier l'utilisateur"
-                  : `Détails de l'utilisateur : ${selectedUser.name}`
-                : showCreateUserForm
-                ? 'Créer un utilisateur'
-                : activeTab}
-            </h2>
-            {activeTab === 'Utilisateurs' && currentUser.role === 'Administrateur' && !showCreateUserForm && !selectedUser && (
-              <button
-                onClick={openCreateForm}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
-              >
-                Créer
-              </button>
-            )}
-            {(showCreateUserForm || selectedUser) && (
-              <button
-                onClick={handleBack}
-                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors"
-              >
-                Retour
-              </button>
-            )}
-          </div>
+          {activeTab === 'Utilisateurs' && (
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">
+                    {selectedUser
+                        ? isEditing
+                            ? "Modifier l'utilisateur"
+                            : `Détails de l'utilisateur : ${selectedUser.name}`
+                        : showCreateUserForm
+                            ? 'Créer un utilisateur'
+                            : activeTab}
+                </h2>
+                {currentUser.role === 'Administrateur' && !showCreateUserForm && !selectedUser && (
+                    <button
+                        onClick={openCreateForm}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
+                    >
+                        Créer
+                    </button>
+                )}
+                {(showCreateUserForm || selectedUser) && (
+                    <button
+                        onClick={handleBack}
+                        className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors"
+                    >
+                        Retour
+                    </button>
+                )}
+            </div>
+        )}
 
           {activeTab === 'Utilisateurs' && currentUser.role === 'Administrateur' ? (
             (showCreateUserForm || selectedUser) ? (
@@ -363,9 +371,12 @@ const Dashboard = () => {
                   <span className="block sm:inline"> Vous n\'avez pas les droits nécessaires pour voir cette page.</span>
               </div>
           ) : (
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-gray-500">Contenu des interventions à venir...</p>
-            </div>
+              <InterventionsManager 
+                interventionList={interventionList}
+                setInterventionList={setInterventionList}
+                userList={userList}
+                currentUser={currentUser}
+              />
           )}
         </div>
       </div>
