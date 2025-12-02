@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 const Dashboard = () => {
-  // State for current user (mocked)
   const [currentUser, setCurrentUser] = useState({
     id: 1,
     name: 'Jean Dupont',
@@ -14,7 +13,6 @@ const Dashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Initial mock data for users
   const initialUsers = [
     { id: 1, name: 'Jean Dupont', role: 'Administrateur', email: 'jean.dupont@example.com', password: 'password123' },
     { id: 2, name: 'Marie Martin', role: 'Technicien', email: 'marie.martin@example.com', password: 'password123' },
@@ -23,10 +21,8 @@ const Dashboard = () => {
     { id: 5, name: 'Lucas Moreau', role: 'Gestionnaire', email: 'lucas.moreau@example.com', password: 'password123' },
   ];
 
-  // State to manage the list of users
   const [userList, setUserList] = useState(initialUsers);
 
-  // State for form inputs (used for both Create and Edit)
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
@@ -160,7 +156,6 @@ const Dashboard = () => {
                 Interventions
               </button>
             </li>
-            {/* Only show Utilisateurs tab if admin */}
             {currentUser.role === 'Administrateur' && (
                 <li>
                 <button
@@ -183,7 +178,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-8">
           <div className="flex justify-between items-center mb-6">
