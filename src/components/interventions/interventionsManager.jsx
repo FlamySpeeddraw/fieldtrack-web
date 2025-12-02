@@ -43,6 +43,9 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
         setStatus('À faire');
         setTechnicienId('');
         setDate(new Date().toISOString().split('T')[0]);
+        setCommentaire(''); 
+        setPhoto(''); 
+        setAdresse('');
     };
 
     const handleBack = () => {
@@ -69,9 +72,9 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
         setStatus(intervention.status);
         setTechnicienId(intervention.technicienId || '');
         setDate(intervention.date);
-        setCommentaire:(intervention.commentaire); 
-        setPhoto: (intervention.photo); 
-        setAdresse: (intervention.adresse);
+        setCommentaire(intervention.commentaire || ""); 
+        setPhoto(intervention.photo || ""); 
+        setAdresse(intervention.adresse || "");        
         setShowCreateForm(false);
         setIsEditing(false);
     };
@@ -139,7 +142,6 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                             type="text"
                             value={titre}
                             onChange={(e) => setTitre(e.target.value)}
-                            disabled={!isEditing}
                             required
                         />
                     </div>
@@ -151,11 +153,22 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                             type="date"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
-                            disabled={!isEditing}
                             required
                         />
                     </div>
                 </div>
+                
+                <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="adresse">Adresse</label>
+                    <input
+                        className="shadow border rounded w-full py-2 px-3 text-gray-700"
+                        id="adresse"
+                        type="text"
+                        value={adresse}
+                        onChange={(e) => setAdresse(e.target.value)}
+                    />
+                </div>
+
                 <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">Description</label>
                     <textarea
@@ -164,10 +177,34 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                         rows="3"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        disabled={!isEditing}
                         required
                     />
                 </div>
+            
+                <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="commentaire">Commentaire (après intervention)</label>
+                    <textarea
+                        className="shadow border rounded w-full py-2 px-3 text-gray-700"
+                        id="commentaire"
+                        rows="3"
+                        value={commentaire}
+                        onChange={(e) => setCommentaire(e.target.value)}
+                        disabled={!isEditing} 
+                    />
+                </div>
+                
+                <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="photo">Lien Photo (URL)</label>
+                    <input
+                        className="shadow border rounded w-full py-2 px-3 text-gray-700"
+                        id="photo"
+                        type="text"
+                        value={photo}
+                        onChange={(e) => setPhoto(e.target.value)}
+                        disabled={!isEditing}
+                    />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="mb-6">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">Statut</label>
@@ -176,7 +213,6 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                             id="status"
                             value={status}
                             onChange={(e) => setStatus(e.target.value)}
-                            disabled={!isEditing && currentUser.role !== 'Technicien'}
                         >
                             <option value="À faire">À faire</option>
                             <option value="En cours">En cours</option>
@@ -190,7 +226,6 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                             id="technicien"
                             value={technicienId || ''}
                             onChange={(e) => setTechnicienId(e.target.value)}
-                            disabled={!isEditing}
                         >
                             <option value="">Non assigné</option>
                             {technicians.map(tech => (
@@ -236,7 +271,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                                     onClick={() => setIsEditing(true)}
                                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
                                 >
-                                    Modifier
+                                    Valider
                                 </button>
                             )
                         )}
