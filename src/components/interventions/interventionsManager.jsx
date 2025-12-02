@@ -181,45 +181,50 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                     />
                 </div>
             
+                {selectedIntervention && (
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="commentaire">Commentaire (après intervention)</label>
-                    <textarea
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700"
-                        id="commentaire"
-                        rows="3"
-                        value={commentaire}
-                        onChange={(e) => setCommentaire(e.target.value)}
-                        disabled={!isEditing} 
-                    />
-                </div>
-                
-                <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="photo">Lien Photo (URL)</label>
-                    <input
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700"
-                        id="photo"
-                        type="text"
-                        value={photo}
-                        onChange={(e) => setPhoto(e.target.value)}
-                        disabled={!isEditing}
-                    />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">Statut</label>
-                        <select
-                            className="shadow border rounded w-full py-2 px-3 text-gray-700 bg-white"
-                            id="status"
-                            value={status}
-                            onChange={(e) => setStatus(e.target.value)}
-                        >
-                            <option value="À faire">À faire</option>
-                            <option value="En cours">En cours</option>
-                            <option value="Terminé">Terminé</option>
-                        </select>
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="commentaire">Commentaire (après intervention)</label>
+                        <textarea
+                            className="shadow border rounded w-full py-2 px-3 text-gray-700"
+                            id="commentaire"
+                            rows="3"
+                            value={commentaire}
+                            onChange={(e) => setCommentaire(e.target.value)}
+                            disabled={!isEditing && currentUser.role !== 'Technicien'}
+                        />
                     </div>
-                    <div className="mb-6">
+                )}
+                
+                {selectedIntervention && (
+                    <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="photo">Lien Photo (URL)</label>
+                        <input
+                            className="shadow border rounded w-full py-2 px-3 text-gray-700"
+                            id="photo"
+                            type="text"
+                            value={photo}
+                            onChange={(e) => setPhoto(e.target.value)}
+                            disabled={!isEditing}
+                        />
+                    </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {selectedIntervention && (
+                        <div className="mb-6">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">Statut</label>
+                            <select
+                                className="shadow border rounded w-full py-2 px-3 text-gray-700 bg-white"
+                                id="status"
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                            >
+                                <option value="À faire">À faire</option>
+                                <option value="En cours">En cours</option>
+                                <option value="Terminé">Terminé</option>
+                            </select>
+                        </div>
+                    )}
+                    <div className={`mb-6 ${!selectedIntervention ? 'md:col-span-2' : ''}`}>
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="technicien">Technicien Assigné</label>
                         <select
                             className="shadow border rounded w-full py-2 px-3 text-gray-700 bg-white"
