@@ -175,7 +175,7 @@ const Dashboard = () => {
 
         <div className="p-4 border-t border-gray-700">
           <button
-            onClick={() => navigate('/authentification')}
+            onClick={() => navigate('/')}
             className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-center transition-colors"
           >
             Déconnexion
