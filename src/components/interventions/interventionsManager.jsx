@@ -150,7 +150,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                         <input
                             className="shadow border rounded w-full py-2 px-3 text-gray-700"
                             id="date"
-                            type="date"
+                            type="datetime-local"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
                             required
