@@ -1,4 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getInterventions, getInterventionById, getInterventionByUserId, postIntervention, updateIntervention, deleteIntervention } from '../../services/interventionService';
+
+const getInitialDateTime = () => {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    return (new Date(now - offset)).toISOString().substring(0, 16);
+};
+
+const formatDateTimeForInput = (dateTimeString) => {
+    if (!dateTimeString) return getInitialDateTime(); 
+    return dateTimeString.replace(' ', 'T').substring(0, 16);
+};
 
 const getStatusStyle = (status) => {
     switch (status) {
@@ -25,16 +37,16 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [selectedIntervention, setSelectedIntervention] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [filterStatus, setFilterStatus] = useState('Tous');
     const [filterTechnicianId, setFilterTechnicianId] = useState('Tous');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const [titre, setTitre] = useState('');
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState('Plannifié');
-    const [technicienId, setTechnicienId] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [idUtilisateur, setIdUtilisateur] = useState('');
+    const [date, setDate] = useState(getInitialDateTime());
     const [commentaire, setCommentaire] = useState("");  
     const [photo, setPhoto] = useState(""); 
     const [adresse, setAdresse] = useState("");
@@ -42,11 +54,10 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
     const technicians = userList.filter(user => user.role === 'Technicien');
 
     const resetForm = () => {
-        setTitre('');
         setDescription('');
         setStatus('Plannifié');
-        setTechnicienId('');
-        setDate(new Date().toISOString().split('T')[0]);
+        setIdUtilisateur('');
+        setDate(getInitialDateTime());
         setCommentaire(''); 
         setPhoto(''); 
         setAdresse('');
@@ -71,66 +82,89 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
 
     const openDetails = (intervention) => {
         setSelectedIntervention(intervention);
-        setTitre(intervention.titre);
         setDescription(intervention.description);
         setStatus(intervention.status);
-        setTechnicienId(intervention.technicienId || '');
-        setDate(intervention.date);
+        setIdUtilisateur(intervention.id_utilisateur || '');
+        setDate(formatDateTimeForInput(intervention.date_intervention || intervention.date));
         setCommentaire(intervention.commentaire || ""); 
-        setPhoto(intervention.photo || ""); 
-        setAdresse(intervention.adresse || "");        
+        setPhoto(intervention.photo || ""); 
+        setAdresse(intervention.adresse || "");        
         setShowCreateForm(false);
         setIsEditing(false);
     };
 
-    const handleCreateOrUpdate = (e) => {
-        e.preventDefault();
+    useEffect(() => {
+        const loadInterventions = async () => {
+            try {
+                setIsLoading(true);
+                const data = await getInterventions(); 
+                setInterventionList(data);
+                
+            } catch (error) {
+                console.error("Échec du chargement des interventions depuis l'API :", error);
+                setInterventionList([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadInterventions();
         
-        const assignedTechnician = technicians.find(t => t.id === parseInt(technicienId));
+    }, [setInterventionList]); 
+
+    const handleCreateOrUpdate = async (e) => {
+        e.preventDefault();
+
+        const itemData = {
+            description: description, 
+            status: status, 
+            date_intervention: date, 
+            id_utilisateur: idUtilisateur ? parseInt(idUtilisateur) : currentUser.id, 
+            commentaire: commentaire, 
+            photo: photo, 
+            adresse: adresse, 
+        }
 
         if (selectedIntervention && isEditing) {
-            const updatedList = interventionList.map(item => 
-                item.id === selectedIntervention.id ? { 
-                    ...item, 
-                    titre, 
-                    description, 
-                    status, 
-                    technicienId: technicienId ? parseInt(technicienId) : null,
-                    technicienName: assignedTechnician ? assignedTechnician.name : 'Non assigné',
-                    date, 
-                    commentaire, 
-                    photo, 
-                    adresse
-                } : item
-            );
-            setInterventionList(updatedList);
-            handleBack();
+            try {
+                const updatedItem = await updateIntervention(selectedIntervention.id, itemData); 
+                
+                setInterventionList(prevList => prevList.map(item => 
+                    item.id === selectedIntervention.id ? { ...item, ...updatedItem } : item
+                ));
+
+            } catch (error) {
+                console.error("Échec de la mise à jour de l'intervention:", error);
+                alert(`Erreur lors de la mise à jour : ${error.message}`);
+            }
         } else {
-            const newIntervention = {
-                id: interventionList.length > 0 ? Math.max(...interventionList.map(i => i.id)) + 1 : 1,
-                titre,
-                description,
-                status,
-                date,
-                commentaire,
-                photo, 
-                adresse,
-                technicienId: technicienId ? parseInt(technicienId) : null,
-                technicienName: assignedTechnician ? assignedTechnician.name : 'Non assigné',
-                creatorEmail: currentUser.email,
-            };
-            setInterventionList([...interventionList, newIntervention]);
-            handleBack();
+            try {
+                const newItem = await postIntervention(itemData); 
+                setInterventionList(prevList => [...prevList, newItem]);
+
+            } catch (error) {
+                console.error("Échec de la création de l'intervention:", error);
+                alert(`Erreur lors de la création : ${error.message}`);
+            }
         }
+        
+        handleBack();
     };
 
-    const handleDelete = () => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cette intervention ?')) {
-            const updatedList = interventionList.filter(item => item.id !== selectedIntervention.id);
-            setInterventionList(updatedList);
-            handleBack();
-        }
-    };
+    const handleDelete = async () => { 
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer cette intervention ?')) {
+            try {
+                await deleteIntervention(selectedIntervention.id); 
+                const updatedList = interventionList.filter(item => item.id !== selectedIntervention.id);
+                setInterventionList(updatedList);
+                handleBack();
+
+            } catch (error) {
+                console.error("Erreur lors de la suppression:", error);
+                alert(`Erreur lors de la suppression : ${error.message}`);
+            }
+        }
+    };
 
     const canEdit = currentUser.role === 'Administrateur' || currentUser.role === 'Gestionnaire';
 
@@ -138,17 +172,6 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
         <div className="bg-white rounded-lg shadow p-6 max-w-3xl">
             <form onSubmit={handleCreateOrUpdate}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="titre">Titre</label>
-                        <input
-                            className="shadow border rounded w-full py-2 px-3 text-gray-700"
-                            id="titre"
-                            type="text"
-                            value={titre}
-                            onChange={(e) => setTitre(e.target.value)}
-                            required
-                        />
-                    </div>
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">Date</label>
                         <input
@@ -160,25 +183,24 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                             required
                         />
                     </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="adresse">Adresse</label>
+                        <input
+                            className="shadow border rounded w-full py-2 px-3 text-gray-700"
+                            id="adresse"
+                            type="text"
+                            value={adresse}
+                            onChange={(e) => setAdresse(e.target.value)}
+                        />
+                    </div>
                 </div>
-                
-                <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="adresse">Adresse</label>
-                    <input
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700"
-                        id="adresse"
-                        type="text"
-                        value={adresse}
-                        onChange={(e) => setAdresse(e.target.value)}
-                    />
-                </div>
 
                 <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">Description</label>
                     <textarea
                         className="shadow border rounded w-full py-2 px-3 text-gray-700"
                         id="description"
-                        rows="3"
+                        rows="4"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         required
@@ -186,7 +208,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                 </div>
             
                 {selectedIntervention && (
-                <div className="mb-4">
+                    <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="commentaire">Commentaire (après intervention)</label>
                         <textarea
                             className="shadow border rounded w-full py-2 px-3 text-gray-700"
@@ -201,16 +223,16 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                 
                 {selectedIntervention && (
                     <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="photo">Lien Photo (URL)</label>
-                        <input
-                            className="shadow border rounded w-full py-2 px-3 text-gray-700"
-                            id="photo"
-                            type="text"
-                            value={photo}
-                            onChange={(e) => setPhoto(e.target.value)}
-                            disabled={!isEditing}
-                        />
-                    </div>
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="photo">Lien Photo (URL)</label>
+                        <input
+                            className="shadow border rounded w-full py-2 px-3 text-gray-700"
+                            id="photo"
+                            type="text"
+                            value={photo}
+                            onChange={(e) => setPhoto(e.target.value)}
+                            disabled={!isEditing}
+                        />
+                    </div>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {selectedIntervention && (
@@ -233,8 +255,8 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                         <select
                             className="shadow border rounded w-full py-2 px-3 text-gray-700 bg-white"
                             id="technicien"
-                            value={technicienId || ''}
-                            onChange={(e) => setTechnicienId(e.target.value)}
+                            value={idUtilisateur || ''}
+                            onChange={(e) => setIdUtilisateur(e.target.value)}
                         >
                             <option value="">Non assigné</option>
                             {technicians.map(tech => (
@@ -292,94 +314,124 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
 
     const filteredInterventions = interventionList.filter(item => {
         const statusMatch = filterStatus === 'Tous' || item.status === filterStatus;
-        const technicianMatch = filterTechnicianId === 'Tous' || item.technicienId === parseInt(filterTechnicianId);
-        const titleMatch = item.titre.toLowerCase().includes(searchTerm.toLowerCase());
-        return statusMatch && technicianMatch && titleMatch;
+        const technicianMatch = filterTechnicianId === 'Tous' || item.id_utilisateur === parseInt(filterTechnicianId);
+        const descriptionMatch = (item.description || "").toLowerCase().includes(searchTerm.toLowerCase()); 
+        return statusMatch && technicianMatch && descriptionMatch;
     });
 
-    const renderList = () => (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="p-4 border-b flex">
-                <div className="w-full md:w-1/3 px-5">
+    const renderList = () => {
+        if (isLoading) {
+            return (
+                <div className="text-center py-10 text-lg text-blue-600">
+                    Chargement des interventions... 
+                </div>
+            );
+        }
+
+        return (
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="p-4 border-b flex flex-wrap gap-4">
+                    <div className="w-full md:w-1/3">
                         <input
                             type="text"
-                            placeholder="Rechercher par titre..."
+                            placeholder="Rechercher par description..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="shadow-sm border rounded w-full py-1.5 px-3 text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500"
                         />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <label htmlFor="statusFilter" className="text-sm font-medium text-gray-700">
+                            Filtrer par statut:
+                        </label>
+                        <select
+                            id="statusFilter"
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                            className="shadow-sm border rounded py-1 px-3 text-sm text-gray-700 bg-white focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="Tous">Tous</option>
+                            <option value="Plannifié">Plannifié</option>
+                            <option value="En cours">En cours</option>
+                            <option value="Terminé">Terminé</option>
+                        </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <label htmlFor="technicianFilter" className="text-sm font-medium text-gray-700">
+                            Filtrer par technicien:
+                        </label>
+                        <select
+                            id="technicianFilter"
+                            value={filterTechnicianId}
+                            onChange={(e) => setFilterTechnicianId(e.target.value)}
+                            className="shadow-sm border rounded py-1 px-3 text-sm text-gray-700 bg-white focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="Tous">Tous</option>
+                            {technicians.map(tech => (
+                                <option key={tech.id} value={tech.id}>
+                                    {tech.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
-                <label htmlFor="statusFilter" className="px-5 text-sm font-medium text-gray-700 self-center">
-                    Filtrer par statut:
-                </label>
-                <select
-                    id="statusFilter"
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="shadow-sm border rounded py-1 px-3 text-sm text-gray-700 bg-white focus:ring-blue-500 focus:border-blue-500"
-                >
-                    <option value="Tous">Tous</option>
-                    <option value="Plannifié">Plannifié</option>
-                    <option value="En cours">En cours</option>
-                    <option value="Terminé">Terminé</option>
-                </select>
-                <label htmlFor="statusFilter" className="px-5 mr-3 text-sm font-medium text-gray-700 self-center">
-                    Filtrer par technicien:
-                </label>
-                <select
-                    id="technicianFilter"
-                    value={filterTechnicianId}
-                    onChange={(e) => setFilterTechnicianId(e.target.value)}
-                    className="shadow-sm border rounded py-1 px-3 text-sm text-gray-700 bg-white focus:ring-blue-500 focus:border-blue-500"
-                >
-                    <option value="Tous">Tous</option>
-                        {technicians.map(tech => (
-                            <option key={tech.id} value={tech.id}>
-                                {tech.name}
-                            </option>
-                        ))}
-                </select>
-            </div>
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        {currentUser.role !== 'Technicien' && (
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Technicien</th>
-                        )}
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredInterventions.map((item) => {
-                        const style = getStatusStyle(item.status);
-                        return (
-                            <tr 
-                                key={item.id} 
-                                className="hover:bg-gray-50 cursor-pointer" 
-                                onClick={() => openDetails(item)}
-                            >
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full`}>
-                                        <span className={`w-2.5 h-2.5 mr-2 rounded-full ${style.dotColor}`}></span>
-                                        {item.status}
-                                    </div>
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            {currentUser.role !== 'Technicien' && (
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Technicien</th>
+                            )}
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredInterventions.length === 0 ? (
+                            <tr>
+                                <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
+                                    Aucune intervention trouvée
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.titre}</td>
-                                {currentUser.role !== 'Technicien' && (
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {item.technicienName || 'Non assigné'}
-                                    </td>
-                                )}
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.date}</td>
                             </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-        </div>
-    );
+                        ) : (
+                            filteredInterventions.map((item) => {
+                                const style = getStatusStyle(item.status);
+                                const assignedTech = technicians.find(t => t.id === item.id_utilisateur);
+                                
+                                return (
+                                    <tr 
+                                        key={item.id} 
+                                        className="hover:bg-gray-50 cursor-pointer" 
+                                        onClick={() => openDetails(item)}
+                                    >
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full`}>
+                                                <span className={`w-2.5 h-2.5 mr-2 rounded-full ${style.dotColor}`}></span>
+                                                {item.status}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                            {item.description?.length > 50 
+                                                ? item.description.substring(0, 50) + '...' 
+                                                : item.description}
+                                        </td>
+                                        {currentUser.role !== 'Technicien' && (
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {assignedTech ? assignedTech.name : 'Non assigné'}
+                                            </td>
+                                        )}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {item.date_intervention || item.date}
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
 
     return (
         <>
@@ -388,7 +440,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                     {selectedIntervention
                         ? isEditing
                             ? "Modifier l'intervention"
-                            : `Détails : ${selectedIntervention.titre}`
+                            : "Détails de l'intervention"
                         : showCreateForm
                             ? 'Créer une intervention'
                             : 'Interventions'}
