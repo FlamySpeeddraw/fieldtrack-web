@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getUsers, createUser, updateUser, deleteUser } from '../services/userService';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const [currentUser, setCurrentUser] = useState({
         id: 1,
         name: 'Jean Dupont',
@@ -214,7 +216,8 @@ const Dashboard = () => {
                 </nav>
 
                 <div className="p-4 border-t border-gray-700">
-                    <button className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-center transition-colors">
+                    <button onClick={() => navigate('/')} 
+                    className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-center transition-colors">
                         Déconnexion
                     </button>
                 </div>
