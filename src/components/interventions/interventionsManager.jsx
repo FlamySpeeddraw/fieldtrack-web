@@ -28,6 +28,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
 
     const [filterStatus, setFilterStatus] = useState('Tous');
     const [filterTechnicianId, setFilterTechnicianId] = useState('Tous');
+    const [searchTerm, setSearchTerm] = useState('');
 
     const [titre, setTitre] = useState('');
     const [description, setDescription] = useState('');
@@ -292,13 +293,23 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
     const filteredInterventions = interventionList.filter(item => {
         const statusMatch = filterStatus === 'Tous' || item.status === filterStatus;
         const technicianMatch = filterTechnicianId === 'Tous' || item.technicienId === parseInt(filterTechnicianId);
-        return statusMatch && technicianMatch;
+        const titleMatch = item.titre.toLowerCase().includes(searchTerm.toLowerCase());
+        return statusMatch && technicianMatch && titleMatch;
     });
 
     const renderList = () => (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="p-4 border-b flex space-x-2 justify-end">
-                <label htmlFor="statusFilter" className=" text-sm font-medium text-gray-700 self-center">
+            <div className="p-4 border-b flex">
+                <div className="w-full md:w-1/3 px-5">
+                        <input
+                            type="text"
+                            placeholder="Rechercher par titre..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="shadow-sm border rounded w-full py-1.5 px-3 text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                </div>
+                <label htmlFor="statusFilter" className="px-5 text-sm font-medium text-gray-700 self-center">
                     Filtrer par statut:
                 </label>
                 <select
@@ -312,7 +323,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                     <option value="En cours">En cours</option>
                     <option value="Terminé">Terminé</option>
                 </select>
-                <label htmlFor="statusFilter" className="mr-3 text-sm font-medium text-gray-700 self-center">
+                <label htmlFor="statusFilter" className="px-5 mr-3 text-sm font-medium text-gray-700 self-center">
                     Filtrer par technicien:
                 </label>
                 <select
