@@ -114,7 +114,7 @@ export default function LoginForm() {
                 className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
                   errors.email ? 'border-red-500' : 'border-gray-300'
                 }`}
-                placeholder="user@example.com"
+                placeholder="user@exemple.com"
               />
             </div>
             {errors.email && <p className="mt-2 text-sm text-red-600">{errors.email}</p>}
