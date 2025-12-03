@@ -26,6 +26,8 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
     const [selectedIntervention, setSelectedIntervention] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
+    const [filterStatus, setFilterStatus] = useState('Tous');
+
     const [titre, setTitre] = useState('');
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState('Plannifié');
@@ -286,8 +288,31 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
         </div>
     );
 
+    const filteredInterventions = interventionList.filter(item => {
+        if (filterStatus === 'Tous') {
+            return true;
+        }
+        return item.status === filterStatus;
+    });
+
     const renderList = () => (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="p-4 border-b border-gray-200 flex justify-end">
+                <label htmlFor="statusFilter" className="mr-3 text-sm font-medium text-gray-700 self-center">
+                    Filtrer par statut:
+                </label>
+                <select
+                    id="statusFilter"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="shadow-sm border rounded py-1 px-3 text-sm text-gray-700 bg-white focus:ring-blue-500 focus:border-blue-500"
+                >
+                    <option value="Tous">Tous</option>
+                    <option value="Plannifié">Plannifié</option>
+                    <option value="En cours">En cours</option>
+                    <option value="Terminé">Terminé</option>
+                </select>
+            </div>
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
@@ -300,7 +325,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                    {interventionList.map((item) => {
+                    {filteredInterventions.map((item) => {
                         const style = getStatusStyle(item.status);
                         return (
                             <tr 
