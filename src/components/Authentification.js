@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import { Mail, Lock, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -43,14 +41,34 @@ export default function LoginForm() {
 
     setIsLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const response = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mail: email,
+          mdp: password,
+        }),
+      });
 
-    if (email === 'user@exemple.com' && password === 'mdp') {
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrors({ general: data.message || "Identifiants incorrects" });
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("refreshToken", data.newRefreshToken);
+
       setSuccess(true);
       navigate('/dashboard');
-      
-    } else {
-      setErrors({ general: 'Email ou mot de passe incorrect' });
+
+    } catch (error) {
+      setErrors({ general: "Erreur serveur. Réessayez plus tard." });
     }
 
     setIsLoading(false);
