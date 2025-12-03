@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 
 const getStatusStyle = (status) => {
     switch (status) {
-        case 'À faire':
+        case 'Plannifié':
             return {
-                dotColor: 'bg-red-500', 
+                dotColor: 'bg-orange-500', 
             };
         case 'En cours':
             return {
-                dotColor: 'bg-blue-500', 
+                dotColor: 'bg-red-500', 
             };
         case 'Terminé':
             return {
@@ -28,7 +28,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
 
     const [titre, setTitre] = useState('');
     const [description, setDescription] = useState('');
-    const [status, setStatus] = useState('À faire');
+    const [status, setStatus] = useState('Plannifié');
     const [technicienId, setTechnicienId] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [commentaire, setCommentaire] = useState("");  
@@ -40,7 +40,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
     const resetForm = () => {
         setTitre('');
         setDescription('');
-        setStatus('À faire');
+        setStatus('Plannifié');
         setTechnicienId('');
         setDate(new Date().toISOString().split('T')[0]);
         setCommentaire(''); 
@@ -218,7 +218,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
                             >
-                                <option value="À faire">À faire</option>
+                                <option value="Plannifié">Plannifié</option>
                                 <option value="En cours">En cours</option>
                                 <option value="Terminé">Terminé</option>
                             </select>
