@@ -1,7 +1,11 @@
 const API_URL = 'http://localhost:5000/utilisateur';
 
 export const getUsers = async () => {
-  const response = await fetch(API_URL);
+  const response = await fetch(API_URL, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  });
   if (!response.ok) {
     throw new Error('Erreur lors de la récupération des utilisateurs');
   }
@@ -10,7 +14,11 @@ export const getUsers = async () => {
 };
 
 export const getUserById = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`);
+  const response = await fetch(`${API_URL}/${id}`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  });
   if (!response.ok) {
     throw new Error('Erreur lors de la récupération de l\'utilisateur');
   }
@@ -23,6 +31,7 @@ export const createUser = async (user) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     },
     body: JSON.stringify(user),
   });
@@ -39,6 +48,7 @@ export const updateUser = async (id, user) => {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     },
     body: JSON.stringify(user),
   });
@@ -51,6 +61,9 @@ export const updateUser = async (id, user) => {
 export const deleteUser = async (id) => {
   const response = await fetch(`${API_URL}/${id}`, {
     method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    },
   });
   if (!response.ok) {
     throw new Error('Erreur lors de la suppression de l\'utilisateur');
