@@ -50,6 +50,7 @@ export default function LoginForm() {
         body: JSON.stringify({
           mail: email,
           mdp: password,
+          appType: "web"
         }),
       });
 
