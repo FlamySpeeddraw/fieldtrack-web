@@ -27,6 +27,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
     const [isEditing, setIsEditing] = useState(false);
 
     const [filterStatus, setFilterStatus] = useState('Tous');
+    const [filterTechnicianId, setFilterTechnicianId] = useState('Tous');
 
     const [titre, setTitre] = useState('');
     const [description, setDescription] = useState('');
@@ -289,16 +290,15 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
     );
 
     const filteredInterventions = interventionList.filter(item => {
-        if (filterStatus === 'Tous') {
-            return true;
-        }
-        return item.status === filterStatus;
+        const statusMatch = filterStatus === 'Tous' || item.status === filterStatus;
+        const technicianMatch = filterTechnicianId === 'Tous' || item.technicienId === parseInt(filterTechnicianId);
+        return statusMatch && technicianMatch;
     });
 
     const renderList = () => (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="p-4 border-b border-gray-200 flex justify-end">
-                <label htmlFor="statusFilter" className="mr-3 text-sm font-medium text-gray-700 self-center">
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="p-4 border-b flex space-x-2 justify-end">
+                <label htmlFor="statusFilter" className=" text-sm font-medium text-gray-700 self-center">
                     Filtrer par statut:
                 </label>
                 <select
@@ -311,6 +311,22 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
                     <option value="Plannifié">Plannifié</option>
                     <option value="En cours">En cours</option>
                     <option value="Terminé">Terminé</option>
+                </select>
+                <label htmlFor="statusFilter" className="mr-3 text-sm font-medium text-gray-700 self-center">
+                    Filtrer par technicien:
+                </label>
+                <select
+                    id="technicianFilter"
+                    value={filterTechnicianId}
+                    onChange={(e) => setFilterTechnicianId(e.target.value)}
+                    className="shadow-sm border rounded py-1 px-3 text-sm text-gray-700 bg-white focus:ring-blue-500 focus:border-blue-500"
+                >
+                    <option value="Tous">Tous</option>
+                        {technicians.map(tech => (
+                            <option key={tech.id} value={tech.id}>
+                                {tech.name}
+                            </option>
+                        ))}
                 </select>
             </div>
             <table className="min-w-full divide-y divide-gray-200">
