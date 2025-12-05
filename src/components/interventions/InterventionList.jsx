@@ -88,11 +88,9 @@ const InterventionList = ({
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Titre
                         </th>
-                        {currentUser.role !== 'Technicien' && (
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Technicien
-                            </th>
-                        )}
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Technicien
+                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Date
                         </th>
@@ -123,15 +121,11 @@ const InterventionList = ({
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                        {item.titre || (item.description?.length > 50 
-                                            ? item.description.substring(0, 50) + '...' 
-                                            : item.description || 'Sans titre')}
+                                        {item.titre}
                                     </td>
-                                    {currentUser.role !== 'Technicien' && (
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {assignedTech ? (assignedTech.mail || assignedTech.name) : 'Non assigné'}
-                                        </td>
-                                    )}
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {assignedTech ? (assignedTech.mail || assignedTech.name) : 'Non assigné'}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {formatDateForDisplay(item.date_intervention)}
                                     </td>
