@@ -1,13 +1,20 @@
 const API_URL = 'http://localhost:5000/interventions';
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+};
+
 export const getInterventions = async () => {
   const response = await fetch(API_URL, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
+    headers: getAuthHeaders()
   });
   if (!response.ok) {
-    throw new Error('Erreur lors de la récupération des interventions');
+    const errorText = await response.text();
+    throw new Error(`Erreur ${response.status}: ${errorText || 'Erreur lors de la récupération des interventions'}`);
   }
   const json = await response.json();
   return json.data ? json.data : json;
@@ -15,12 +22,11 @@ export const getInterventions = async () => {
 
 export const getInterventionById = async (id) => {
   const response = await fetch(`${API_URL}/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
+    headers: getAuthHeaders()
   });
   if (!response.ok) {
-    throw new Error('Erreur lors de la récupération de l\'intervention');
+    const errorText = await response.text();
+    throw new Error(`Erreur ${response.status}: ${errorText || 'Erreur lors de la récupération de l\'intervention'}`);
   }
   const json = await response.json();
   return json.data ? json.data : json;
@@ -28,24 +34,21 @@ export const getInterventionById = async (id) => {
 
 export const getInterventionByUserId = async (id) => {
   const response = await fetch(`${API_URL}/user/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
+    headers: getAuthHeaders()
   });
   if (!response.ok) {
-    throw new Error('Erreur lors de la récupération de l\'intervention');
+    const errorText = await response.text();
+    throw new Error(`Erreur ${response.status}: ${errorText || 'Erreur lors de la récupération de l\'intervention'}`);
   }
   const json = await response.json();
   return json.data ? json.data : json;
 };
 
-export const postIntervention = async (user) => {
+export const postIntervention = async (interventionData) => {
   const response = await fetch(API_URL, {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    },
-    body: JSON.stringify(user),
+    headers: getAuthHeaders(),
+    body: JSON.stringify(interventionData),
   });
   if (!response.ok) {
     const errorText = await response.text();
@@ -55,13 +58,11 @@ export const postIntervention = async (user) => {
   return json.data ? json.data : json;
 };
 
-export const updateIntervention = async (id, user) => {
+export const updateIntervention = async (id, interventionData) => {
   const response = await fetch(`${API_URL}/${id}`, {
     method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    },
-    body: JSON.stringify(user),
+    headers: getAuthHeaders(),
+    body: JSON.stringify(interventionData),
   });
   if (!response.ok) {
     const errorText = await response.text();
@@ -74,9 +75,7 @@ export const updateIntervention = async (id, user) => {
 export const deleteIntervention = async (id) => {
   const response = await fetch(`${API_URL}/${id}`, {
     method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
+    headers: getAuthHeaders()
   });
   if (!response.ok) {
     const errorText = await response.text();
