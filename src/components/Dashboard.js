@@ -8,10 +8,10 @@ const Dashboard = () => {
     const [currentUser, setCurrentUser] = useState({
         id: 1,
         name: 'Jean Dupont',
-        role: 'Administrateur'
+        role: 'Admin'
     });
 
-    const [activeTab, setActiveTab] = useState(currentUser.role === 'Administrateur' ? 'Utilisateurs' : 'Interventions');
+    const [activeTab, setActiveTab] = useState(currentUser.role === 'Admin' ? 'Utilisateurs' : 'Interventions');
     const [showCreateUserForm, setShowCreateUserForm] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -30,7 +30,7 @@ const Dashboard = () => {
                 console.error("Erreur chargement utilisateurs:", error);
             }
         };
-        if (activeTab === 'Utilisateurs' && currentUser.role === 'Administrateur') {
+        if (activeTab === 'Utilisateurs' && currentUser.role === 'Admin') {
             loadUsers();
         }
     }, [activeTab, currentUser.role]);
@@ -41,7 +41,7 @@ const Dashboard = () => {
     const [userRole, setUserRole] = useState('Gestionnaire');
 
     const handleTabChange = (tab) => {
-      if (tab === 'Utilisateurs' && currentUser.role !== 'Administrateur') {
+      if (tab === 'Utilisateurs' && currentUser.role !== 'Admin') {
           alert("Accès refusé : Seuls les administrateurs peuvent accéder à cette page.");
           return;
       }
@@ -151,7 +151,7 @@ const Dashboard = () => {
         setSelectedUser(user);
         setUserName(user.mail ? user.mail.split('@')[0] : '');
         setUserEmail(user.mail);
-        setUserPassword(user.mdp || '');
+        setUserPassword('');
         setUserRole(user.nom_role);
         setShowCreateUserForm(false);
         setIsEditing(false);
@@ -161,7 +161,7 @@ const Dashboard = () => {
     const cancelEdit = () => {
         setUserName(selectedUser.mail ? selectedUser.mail.split('@')[0] : '');
         setUserEmail(selectedUser.mail);
-        setUserPassword(selectedUser.mdp || '');
+        setUserPassword('');
         setUserRole(selectedUser.nom_role);
         setIsEditing(false);
         setShowPassword(false);
@@ -181,13 +181,12 @@ const Dashboard = () => {
                             onChange={(e) => {
                                 const newRole = e.target.value;
                                 setCurrentUser({...currentUser, role: newRole});
-                                if (newRole !== 'Administrateur' && activeTab === 'Utilisateurs') {
+                                if (newRole !== 'Admin' && activeTab === 'Utilisateurs') {
                                     setActiveTab('Interventions');
                                 }
                             }}
                         >
-                            <option value="Administrateur">Administrateur</option>
-                            <option value="Technicien">Technicien</option>
+                            <option value="Admin">Admin</option>
                             <option value="Gestionnaire">Gestionnaire</option>
                         </select>
                     </div>
@@ -205,7 +204,7 @@ const Dashboard = () => {
                                 Interventions
                             </button>
                         </li>
-                        {currentUser.role === 'Administrateur' && (
+                        {currentUser.role === 'Admin' && (
                             <li>
                                 <button
                                     onClick={() => handleTabChange('Utilisateurs')}
@@ -243,7 +242,7 @@ const Dashboard = () => {
                                         ? 'Créer un utilisateur'
                                         : activeTab}
                             </h2>
-                            {currentUser.role === 'Administrateur' && !showCreateUserForm && !selectedUser && (
+                            {currentUser.role === 'Admin' && !showCreateUserForm && !selectedUser && (
                                 <button
                                     onClick={openCreateForm}
                                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
@@ -262,7 +261,7 @@ const Dashboard = () => {
                         </div>
                     )}
 
-                    {activeTab === 'Utilisateurs' && currentUser.role === 'Administrateur' ? (
+                    {activeTab === 'Utilisateurs' && currentUser.role === 'Admin' ? (
                         (showCreateUserForm || selectedUser) ? (
                             <div className="bg-white rounded-lg shadow p-6 max-w-2xl">
                                 <form onSubmit={selectedUser && isEditing ? handleUpdateUser : handleCreateUser}>
@@ -307,8 +306,7 @@ const Dashboard = () => {
                                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10"
                                                 id="password"
                                                 type={showPassword ? 'text' : 'password'}
-                                                placeholder="******************"
-                                                value={userPassword}
+                                                placeholder={selectedUser ? "Nouveau mot de passe (laisser vide pour ne pas changer)" : "Mot de passe"}                                                value={userPassword}
                                                 onChange={(e) => setUserPassword(e.target.value)}
                                                 required={!selectedUser}
                                                 disabled={!isEditing}
@@ -336,7 +334,7 @@ const Dashboard = () => {
                                         >
                                             <option value="Gestionnaire">Gestionnaire</option>
                                             <option value="Technicien">Technicien</option>
-                                            <option value="Administrateur">Administrateur</option>
+                                            <option value="Admin">Admin</option>
                                         </select>
                                     </div>
                                     <div className="flex items-center justify-between">
@@ -398,7 +396,7 @@ const Dashboard = () => {
                                             >
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                        user.nom_role === 'Administrateur' ? 'bg-purple-100 text-purple-800' :
+                                                        user.nom_role === 'Admin' ? 'bg-purple-100 text-purple-800' :
                                                         user.nom_role === 'Technicien' ? 'bg-green-100 text-green-800' :
                                                         'bg-gray-100 text-gray-800'
                                                     }`}>
