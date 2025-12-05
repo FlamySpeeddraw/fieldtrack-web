@@ -3,7 +3,6 @@ import { getInterventions, postIntervention, updateIntervention, deleteIntervent
 import InterventionForm from './InterventionForm';
 import InterventionList from './InterventionList';
 import { getInitialDateTime, formatDateTimeForInput } from './interventionHelpers';
-import sseService from '../../services/sseService';
 
 const InterventionsManager = ({ interventionList, setInterventionList, userList, currentUser }) => {
     const [showCreateForm, setShowCreateForm] = useState(false);
@@ -67,19 +66,21 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
     };
 
     useEffect(() => {
-        sseService.connect();
-
-        const onCreated = (data) => setInterventionList(prev => [...prev, data]);
-        const onUpdated = (data) => setInterventionList(prev => prev.map(i => i.id === data.id ? data : i));
-
-        sseService.on('intervention:created', onCreated);
-        sseService.on('intervention:updated', onUpdated);
-
-        return () => {
-            sseService.off('intervention:created', onCreated);
-            sseService.off('intervention:updated', onUpdated);
+        const loadInterventions = async () => {
+            try {
+                setIsLoading(true);
+                const data = await getInterventions(); 
+                setInterventionList(data);
+            } catch (error) {
+                console.error("Échec du chargement des interventions:", error);
+                setInterventionList([]);
+            } finally {
+                setIsLoading(false);
+            }
         };
-    }, [setInterventionList]);
+
+        loadInterventions();
+    }, []); 
 
     const handleCreateOrUpdate = async (e) => {
         e.preventDefault();
