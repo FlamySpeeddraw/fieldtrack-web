@@ -6,12 +6,39 @@ export const getUsers = async () => {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
   });
+  console.log(localStorage.getItem('refreshToken'));
+  if (response.status === 401) {
+    const refreshResp = await fetch('http://localhost:5000/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        appType: "web",
+        refreshToken: localStorage.getItem('refreshToken')
+      })
+    });
+    console.log(refreshResp);
+    if (refreshResp.ok) {
+      const refreshData = await refreshResp.json();
+
+      localStorage.setItem('token', refreshData.token);
+      localStorage.setItem('refreshToken', refreshData.newRefreshToken);
+
+      return await getUsers();
+    } else {
+      throw new Error("Refresh token invalide, reconnectez-vous.");
+    }
+  }
+
   if (!response.ok) {
     throw new Error('Erreur lors de la récupération des utilisateurs');
   }
+
   const json = await response.json();
   return json.data ? json.data : json;
 };
+
 
 export const getUserById = async (id) => {
   const response = await fetch(`${API_URL}/${id}`, {
@@ -19,6 +46,29 @@ export const getUserById = async (id) => {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
   });
+  if (response.status === 401) {
+    const refreshResp = await fetch('http://localhost:5000/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        appType: "web",
+        refreshToken: localStorage.getItem('refreshToken')
+      })
+    });
+    console.log(refreshResp);
+    if (refreshResp.ok) {
+      const refreshData = await refreshResp.json();
+
+      localStorage.setItem('token', refreshData.token);
+      localStorage.setItem('refreshToken', refreshData.newRefreshToken);
+
+      return await getUserById(id);
+    } else {
+      throw new Error("Refresh token invalide, reconnectez-vous.");
+    }
+  }
   if (!response.ok) {
     throw new Error('Erreur lors de la récupération de l\'utilisateur');
   }
@@ -35,6 +85,29 @@ export const createUser = async (user) => {
     },
     body: JSON.stringify(user),
   });
+  if (response.status === 401) {
+    const refreshResp = await fetch('http://localhost:5000/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        appType: "web",
+        refreshToken: localStorage.getItem('refreshToken')
+      })
+    });
+    console.log(refreshResp);
+    if (refreshResp.ok) {
+      const refreshData = await refreshResp.json();
+
+      localStorage.setItem('token', refreshData.token);
+      localStorage.setItem('refreshToken', refreshData.newRefreshToken);
+
+      return await createUser(user);
+    } else {
+      throw new Error("Refresh token invalide, reconnectez-vous.");
+    }
+  }
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`Erreur ${response.status}: ${errorText || response.statusText}`);
@@ -52,6 +125,29 @@ export const updateUser = async (id, user) => {
     },
     body: JSON.stringify(user),
   });
+  if (response.status === 401) {
+    const refreshResp = await fetch('http://localhost:5000/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        appType: "web",
+        refreshToken: localStorage.getItem('refreshToken')
+      })
+    });
+    console.log(refreshResp);
+    if (refreshResp.ok) {
+      const refreshData = await refreshResp.json();
+
+      localStorage.setItem('token', refreshData.token);
+      localStorage.setItem('refreshToken', refreshData.newRefreshToken);
+
+      return await updateUser(id, user);
+    } else {
+      throw new Error("Refresh token invalide, reconnectez-vous.");
+    }
+  }
   if (!response.ok) {
     throw new Error('Erreur lors de la mise à jour de l\'utilisateur');
   }
@@ -65,6 +161,29 @@ export const deleteUser = async (id) => {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     },
   });
+  if (response.status === 401) {
+    const refreshResp = await fetch('http://localhost:5000/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        appType: "web",
+        refreshToken: localStorage.getItem('refreshToken')
+      })
+    });
+    console.log(refreshResp);
+    if (refreshResp.ok) {
+      const refreshData = await refreshResp.json();
+
+      localStorage.setItem('token', refreshData.token);
+      localStorage.setItem('refreshToken', refreshData.newRefreshToken);
+
+      return await deleteUser(id);
+    } else {
+      throw new Error("Refresh token invalide, reconnectez-vous.");
+    }
+  }
   if (!response.ok) {
     throw new Error('Erreur lors de la suppression de l\'utilisateur');
   }
