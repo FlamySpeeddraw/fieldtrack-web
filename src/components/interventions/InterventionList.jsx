@@ -55,7 +55,7 @@ const InterventionList = ({
                         className="shadow-sm border rounded py-1 px-3 text-sm text-gray-700 bg-white focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="Tous">Tous</option>
-                        <option value="Plannifié">Plannifié</option>
+                        <option value="Planifié">Planifié</option>
                         <option value="En cours">En cours</option>
                         <option value="Terminé">Terminé</option>
                     </select>

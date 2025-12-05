@@ -39,7 +39,7 @@ export const normalizeStatus = (status) => {
 
 export const getStatusStyle = (status) => {
     switch (status) {
-        case 'Plannifié':
+        case 'Planifié':
             return { dotColor: 'bg-orange-500' };
         case 'En cours':
             return { dotColor: 'bg-red-500' };

@@ -12,7 +12,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
 
     const [titre, setTitre] = useState('');
     const [description, setDescription] = useState('');
-    const [status, setStatus] = useState('Plannifié');
+    const [status, setStatus] = useState('Planifié');
     const [idUtilisateur, setIdUtilisateur] = useState('');
     const [date, setDate] = useState(getInitialDateTime());
     const [commentaire, setCommentaire] = useState("");  
@@ -26,7 +26,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
     const resetForm = () => {
         setTitre('');
         setDescription('');
-        setStatus('Plannifié');
+        setStatus('Planifié');
         setIdUtilisateur('');
         setDate(getInitialDateTime());
         setCommentaire(''); 
@@ -55,7 +55,7 @@ const InterventionsManager = ({ interventionList, setInterventionList, userList,
         setSelectedIntervention(intervention);
         setTitre(intervention.titre || '');
         setDescription(intervention.description || '');
-        setStatus(intervention.status || 'Plannifié');
+        setStatus(intervention.status || 'Planifié');
         setIdUtilisateur(intervention.id_utilisateur || '');
         setDate(formatDateTimeForInput(intervention.date_intervention));
         setCommentaire(intervention.commentaire || ""); 

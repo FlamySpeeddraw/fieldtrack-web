@@ -117,7 +117,7 @@ const InterventionForm = ({
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
                             >
-                                <option value="Plannifié">Plannifié</option>
+                                <option value="Planifié">Planifié</option>
                                 <option value="En cours">En cours</option>
                                 <option value="Terminé">Terminé</option>
                             </select>
